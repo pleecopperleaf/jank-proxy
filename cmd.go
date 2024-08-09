@@ -12,24 +12,25 @@ import (
 
 func main() {
 	if len(os.Args) < 4 {
-		panic("cmd port defaultUrl altUrl fwdCodes...")
+		fmt.Println("cmd port defaultUrl altUrl fwdCodes...")
+		return
 	}
 
 	port, err := strconv.Atoi(os.Args[1])
 	if err != nil {
 		fmt.Printf("invalid port %s\n", os.Args[1])
-		panic(err)
+		return
 	}
 
 	defaultUrl, err := url.Parse(os.Args[2])
 	if err != nil {
 		fmt.Println("invalid defaultUrl")
-		panic(err)
+		return
 	}
 	altUrl, err := url.Parse(os.Args[3])
 	if err != nil {
 		fmt.Println("invalid altUrl")
-		panic(err)
+		return
 	}
 
 	forwardCodes := make(map[int]struct{})
@@ -37,7 +38,7 @@ func main() {
 		i, err := strconv.Atoi(code)
 		if err != nil {
 			fmt.Printf("invalid code: %s\n", code)
-			panic(err)
+			return
 		}
 		forwardCodes[i] = struct{}{}
 	}

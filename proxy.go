@@ -40,6 +40,7 @@ func proxy(defaultUrl *url.URL, altUrl *url.URL, forwardCodes map[int]struct{}) 
 			newURL.Scheme = altUrl.Scheme
 			outReq.URL = &newURL
 			res, err = http.DefaultTransport.RoundTrip(outReq)
+			log.Printf("FORWARD: %s %s %s", res.Status, r.Method, r.URL)
 		} else {
 			log.Printf("%s %s %s", res.Status, r.Method, r.URL)
 		}
