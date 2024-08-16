@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"io"
 	"log"
 	"net/http"
@@ -14,6 +15,14 @@ func proxy(defaultUrl *url.URL, altUrl *url.URL, forwardCodes map[int]struct{}) 
 		outReq := r.Clone(ctx)
 
 		outReq.URL.Scheme = defaultUrl.Scheme
+
+		// pre-emptively copy request body, in case it needs to be read again
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		outReq.Body = io.NopCloser(bytes.NewReader(body))
 
 		newURL := *r.URL
 		newURL.Host = defaultUrl.Host
@@ -34,13 +43,17 @@ func proxy(defaultUrl *url.URL, altUrl *url.URL, forwardCodes map[int]struct{}) 
 		}
 
 		if forward {
+			outReq := r.Clone(ctx)
+			outReq.Body = io.NopCloser(bytes.NewReader(body))
 			log.Printf("ERROR %s | FORWARD: %s %s", errStr, r.Method, r.URL)
 			newURL = *r.URL
 			newURL.Host = altUrl.Host
 			newURL.Scheme = altUrl.Scheme
 			outReq.URL = &newURL
 			res, err = http.DefaultTransport.RoundTrip(outReq)
-			log.Printf("FORWARD: %s %s %s", res.Status, r.Method, r.URL)
+			if err == nil {
+				log.Printf("FORWARD: %s %s %s", res.Status, r.Method, r.URL)
+			}
 		} else {
 			log.Printf("%s %s %s", res.Status, r.Method, r.URL)
 		}

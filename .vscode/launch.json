@@ -10,7 +10,7 @@
       "request": "launch",
       "mode": "auto",
       "program": "${fileDirname}",
-      "args": [ "5002", "http://localhost:5000", "http://localhost:5001", "404", "401"]
+      "args": [ "5000", "http://localhost:5001", "http://localhost:5002", "404", "401"]
     }
   ]
 }
